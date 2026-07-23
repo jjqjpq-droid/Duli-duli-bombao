@@ -146,7 +146,7 @@ export default function ChatInterface() {
         {/* Header */}
         <div className="border-b border-border bg-background px-6 py-4">
           <h1 className="text-2xl font-bold text-foreground">AI Chat</h1>
-          <p className="text-sm text-muted-foreground">Powered by Dolphin AI</p>
+          <p className="text-sm text-muted-foreground">@NGYT777GGG</p>
         </div>
 
         {/* Auth Container */}
@@ -213,7 +213,7 @@ export default function ChatInterface() {
       <div className="border-b border-border bg-background px-6 py-4 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-foreground">AI Chat</h1>
-          <p className="text-sm text-muted-foreground">Powered by Dolphin AI</p>
+          <p className="text-sm text-muted-foreground">@NGYT777GGG</p>
         </div>
         <a
           href="https://t.me/NGYT777GGG"
