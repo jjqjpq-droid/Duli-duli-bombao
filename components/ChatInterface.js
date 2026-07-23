@@ -6,24 +6,13 @@ import Message from './Message';
 import RateLimitAlert from './RateLimitAlert';
 import TelegramButton from './TelegramButton';
 
-interface ChatMessage {
-  id: string;
-  role: 'user' | 'assistant';
-  content: string;
-  thinking?: string;
-  timestamp: Date;
-}
-
 export default function ChatInterface() {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [rateLimitInfo, setRateLimitInfo] = useState<{
-    remaining: number;
-    resetIn: number;
-  } | null>(null);
+  const [rateLimitInfo, setRateLimitInfo] = useState(null);
   const [error, setError] = useState('');
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -33,14 +22,13 @@ export default function ChatInterface() {
     scrollToBottom();
   }, [messages]);
 
-  const handleSendMessage = async (e: React.FormEvent) => {
+  const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
 
     setError('');
 
-    // Add user message
-    const userMessage: ChatMessage = {
+    const userMessage = {
       id: Date.now().toString(),
       role: 'user',
       content: input,
@@ -52,7 +40,6 @@ export default function ChatInterface() {
     setIsLoading(true);
 
     try {
-      // Call the API
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {
@@ -82,7 +69,7 @@ export default function ChatInterface() {
         return;
       }
 
-      const aiMessage: ChatMessage = {
+      const aiMessage = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
         content: data.content,
@@ -110,7 +97,6 @@ export default function ChatInterface() {
 
   return (
     <div className="flex flex-col h-screen bg-background">
-      {/* Header */}
       <header className="border-b border-border bg-card/50 backdrop-blur-sm">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -136,7 +122,6 @@ export default function ChatInterface() {
         </div>
       </header>
 
-      {/* Messages Container */}
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
           {messages.length === 0 && (
@@ -148,12 +133,12 @@ export default function ChatInterface() {
               </p>
               <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="bg-card border border-border rounded-lg p-3 text-sm text-left">
-                  <p className="font-semibold text-primary mb-1">💡 Feature:</p>
-                  <p className="text-muted">Rate Limited: 20 requests/minute</p>
+                  <p className="font-semibold text-primary mb-1">Rate Limited:</p>
+                  <p className="text-muted">20 requests per minute</p>
                 </div>
                 <div className="bg-card border border-border rounded-lg p-3 text-sm text-left">
-                  <p className="font-semibold text-accent mb-1">🧠 Feature:</p>
-                  <p className="text-muted">Shows AI thinking process</p>
+                  <p className="font-semibold text-accent mb-1">AI Thinking:</p>
+                  <p className="text-muted">Shows reasoning process</p>
                 </div>
               </div>
             </div>
@@ -176,7 +161,6 @@ export default function ChatInterface() {
         </div>
       </div>
 
-      {/* Error & Rate Limit Alerts */}
       {error && (
         <div className="max-w-4xl mx-auto px-4 w-full">
           <div className="bg-red-900/30 border border-red-700 text-red-200 px-4 py-3 rounded-lg flex items-center gap-3 mb-4">
@@ -193,7 +177,6 @@ export default function ChatInterface() {
         />
       )}
 
-      {/* Input Area */}
       <div className="border-t border-border bg-card/50 backdrop-blur-sm p-4">
         <form onSubmit={handleSendMessage} className="max-w-4xl mx-auto">
           <div className="flex gap-3">
@@ -207,7 +190,7 @@ export default function ChatInterface() {
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
                   e.preventDefault();
-                  handleSendMessage(e as any);
+                  handleSendMessage(e);
                 }
               }}
             />

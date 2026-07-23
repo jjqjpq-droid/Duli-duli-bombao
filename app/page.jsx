@@ -10,7 +10,6 @@ export default function Home() {
   const [showTelegramPopup, setShowTelegramPopup] = useState(false);
 
   useEffect(() => {
-    // Check if user is already authenticated
     const auth = localStorage.getItem('chatAuth');
     if (auth === 'true') {
       setIsAuthenticated(true);

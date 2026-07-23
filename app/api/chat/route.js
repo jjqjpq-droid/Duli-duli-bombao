@@ -1,22 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { rateLimiter } from '@/lib/rateLimiter';
 
-interface ChatMessage {
-  role: 'user' | 'assistant';
-  content: string;
-}
-
-interface RequestBody {
-  message: string;
-  messages: ChatMessage[];
-}
-
-// Simple in-memory store for rate limiting (in production, use Redis or database)
-const requestCounts = new Map<string, { count: number; resetTime: number }>();
+const requestCounts = new Map();
 const REQUEST_LIMIT = 20;
-const TIME_WINDOW = 60 * 1000; // 1 minute
+const TIME_WINDOW = 60 * 1000;
 
-function checkRateLimit(clientId: string) {
+function checkRateLimit(clientId) {
   const now = Date.now();
   const data = requestCounts.get(clientId);
 
@@ -39,6 +27,7 @@ function checkRateLimit(clientId: string) {
   }
 
   data.count += 1;
+
   return {
     allowed: true,
     remaining: REQUEST_LIMIT - data.count,
@@ -46,13 +35,7 @@ function checkRateLimit(clientId: string) {
   };
 }
 
-async function callExternalAI(
-  messages: ChatMessage[],
-  userMessage: string
-): Promise<{
-  thinking: string;
-  content: string;
-}> {
+async function callExternalAI(messages, userMessage) {
   try {
     const payload = {
       messages: [
@@ -110,8 +93,6 @@ async function callExternalAI(
       }
     }
 
-    // For simplicity, we'll simulate thinking process
-    // In a real implementation, extract from the actual model output
     const thinking =
       'Processing your request...\n' +
       'Analyzing the context...\n' +
@@ -132,15 +113,13 @@ async function callExternalAI(
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(request) {
   try {
-    // Get client identifier (IP address or session ID)
     const clientId =
       request.headers.get('x-forwarded-for') ||
       request.headers.get('x-client-id') ||
       'anonymous';
 
-    // Check rate limit
     const rateLimit = checkRateLimit(clientId);
 
     if (!rateLimit.allowed) {
@@ -154,7 +133,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const body: RequestBody = await request.json();
+    const body = await request.json();
     const { message, messages = [] } = body;
 
     if (!message || typeof message !== 'string') {
@@ -164,7 +143,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Call the external AI API
     const { thinking, content } = await callExternalAI(messages, message);
 
     return NextResponse.json(

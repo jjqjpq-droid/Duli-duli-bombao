@@ -1,0 +1,36 @@
+
+> v0-project@1.0.0 build
+> next build
+
+▲ Next.js 16.2.11 (Turbopack)
+- Experiments (use with caution):
+  · serverActions
+  ✓ transitionIndicator
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 2.3s
+  Running TypeScript ...
+It looks like you're trying to use TypeScript but do not have the required package(s) installed.
+Installing dependencies
+
+If you are not trying to use TypeScript, please remove the tsconfig.json file from your package root (and any TypeScript files in your app and pages directories).
+
+
+Installing devDependencies (npm):
+- typescript
+
+
+up to date, audited 57 packages in 1s
+
+15 packages are looking for funding
+  run `npm fund` for details
+
+3 vulnerabilities (1 moderate, 2 high)
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+
+The "id" argument must be of type string. Received undefined
+Next.js build worker exited with code: 1 and signal: null
