@@ -1,21 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 
-// Rate limiting: Store request timestamps per IP
+// API Key validation
+const VALID_API_KEY = "@NGYT777GGG";
+
+// Rate limiting: Store request timestamps per API key
 const requestLimits = new Map<string, number[]>();
 const RATE_LIMIT = 20; // 20 requests per minute
 const TIME_WINDOW = 60 * 1000; // 1 minute in milliseconds
 
-function getClientIp(request: NextRequest): string {
-  return (
-    request.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
-    request.headers.get("x-real-ip") ||
-    "unknown"
-  );
-}
-
-function isRateLimited(clientIp: string): boolean {
+function isRateLimited(apiKey: string): boolean {
   const now = Date.now();
-  const timestamps = requestLimits.get(clientIp) || [];
+  const timestamps = requestLimits.get(apiKey) || [];
 
   // Remove timestamps outside the time window
   const validTimestamps = timestamps.filter((ts) => now - ts < TIME_WINDOW);
@@ -26,24 +21,30 @@ function isRateLimited(clientIp: string): boolean {
 
   // Add current timestamp
   validTimestamps.push(now);
-  requestLimits.set(clientIp, validTimestamps);
+  requestLimits.set(apiKey, validTimestamps);
 
   return false;
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const clientIp = getClientIp(request);
+    const { messages, apiKey } = await request.json();
 
-    // Check rate limit
-    if (isRateLimited(clientIp)) {
+    // Validate API key
+    if (!apiKey || apiKey !== VALID_API_KEY) {
+      return NextResponse.json(
+        { error: "Invalid API key" },
+        { status: 401 }
+      );
+    }
+
+    // Check rate limit per API key
+    if (isRateLimited(apiKey)) {
       return NextResponse.json(
         { error: "Rate limit exceeded. Maximum 20 requests per minute." },
         { status: 429 }
       );
     }
-
-    const { messages } = await request.json();
 
     const payload = {
       messages,

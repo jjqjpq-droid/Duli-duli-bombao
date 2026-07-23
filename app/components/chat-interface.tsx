@@ -7,10 +7,15 @@ interface Message {
   content: string;
 }
 
+const VALID_API_KEY = "@NGYT777GGG";
+
 export default function ChatInterface() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [apiKey, setApiKey] = useState("");
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [apiKeyError, setApiKeyError] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -20,6 +25,24 @@ export default function ChatInterface() {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  const handleApiKeySubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setApiKeyError("");
+
+    if (!apiKey.trim()) {
+      setApiKeyError("Please enter an API key");
+      return;
+    }
+
+    if (apiKey === VALID_API_KEY) {
+      setIsAuthenticated(true);
+      setApiKeyError("");
+    } else {
+      setApiKeyError("Invalid API key");
+      setApiKey("");
+    }
+  };
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,6 +67,7 @@ export default function ChatInterface() {
         },
         body: JSON.stringify({
           messages: newMessages,
+          apiKey: apiKey,
         }),
       });
 
@@ -114,6 +138,74 @@ export default function ChatInterface() {
       setIsLoading(false);
     }
   };
+
+  // Show API key entry screen if not authenticated
+  if (!isAuthenticated) {
+    return (
+      <div className="flex flex-col h-screen bg-background">
+        {/* Header */}
+        <div className="border-b border-border bg-background px-6 py-4">
+          <h1 className="text-2xl font-bold text-foreground">AI Chat</h1>
+          <p className="text-sm text-muted-foreground">Powered by Dolphin AI</p>
+        </div>
+
+        {/* Auth Container */}
+        <div className="flex-1 flex items-center justify-center px-6">
+          <div className="w-full max-w-sm">
+            <div className="bg-white rounded-lg shadow-lg p-8">
+              <h2 className="text-2xl font-bold text-foreground mb-2">Enter API Key</h2>
+              <p className="text-muted-foreground mb-6">
+                You need an API key to access the chat. Join our Telegram for the key.
+              </p>
+
+              <form onSubmit={handleApiKeySubmit} className="space-y-4">
+                <div>
+                  <input
+                    type="password"
+                    value={apiKey}
+                    onChange={(e) => setApiKey(e.target.value)}
+                    placeholder="Enter your API key"
+                    className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-background text-foreground placeholder-muted-foreground"
+                  />
+                  {apiKeyError && (
+                    <p className="text-red-500 text-sm mt-2">{apiKeyError}</p>
+                  )}
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors font-medium"
+                >
+                  Unlock Chat
+                </button>
+              </form>
+
+              <div className="mt-6 p-4 bg-muted rounded-lg text-center">
+                <p className="text-sm text-muted-foreground mb-3">
+                  Don&apos;t have an API key?
+                </p>
+                <a
+                  href="https://t.me/NGYT777GGG"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors font-medium text-sm"
+                >
+                  <svg
+                    className="w-5 h-5"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z" />
+                  </svg>
+                  Join Telegram
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-screen bg-background">
